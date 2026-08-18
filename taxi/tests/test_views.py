@@ -3,7 +3,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from taxi.models import Manufacturer, Car
 
-
 MANUFACTURER_LIST_URL = reverse("taxi:manufacturer-list")
 
 
@@ -85,3 +84,65 @@ class CarSearchTests(TestCase):
         self.assertContains(response, self.car_camry.model)
         self.assertContains(response, self.car_corolla.model)
         self.assertContains(response, self.car_prius.model)
+
+
+class DriverSearchTests(TestCase):
+    def setUp(self) -> None:
+        self.client = Client()
+        self.user = get_user_model().objects.create_user(
+            username="test_admin", password="test_password_123"
+        )
+        self.client.force_login(self.user)
+        self.url = reverse("taxi:driver-list")
+
+        self.driver_1 = get_user_model().objects.create_user(
+            username="john_doe", password="password123",
+            license_number="AAA12345"
+        )
+        self.driver_2 = get_user_model().objects.create_user(
+            username="alex_smith", password="password123",
+            license_number="BBB12345"
+        )
+
+    def test_search_by_username_is_case_insensitive(self):
+        response = self.client.get(self.url, {"username": "JoHn"})
+        self.assertEqual(response.status_code, 200)
+        driver_list = list(response.context["driver_list"])
+        self.assertIn(self.driver_1, driver_list)
+        self.assertNotIn(self.driver_2, driver_list)
+
+    def test_empty_driver_search_returns_all(self):
+        response = self.client.get(self.url, {"username": ""})
+        self.assertEqual(response.status_code, 200)
+        driver_list = list(response.context["driver_list"])
+        self.assertIn(self.driver_1, driver_list)
+        self.assertIn(self.driver_2, driver_list)
+
+
+class ManufacturerSearchTests(TestCase):
+    def setUp(self) -> None:
+        self.client = Client()
+        self.user = get_user_model().objects.create_user(
+            username="test_admin", password="test_password_123"
+        )
+        self.client.force_login(self.user)
+        self.url = reverse("taxi:manufacturer-list")
+
+        self.man_1 = Manufacturer.objects.create(name="Toyota",
+                                                 country="Japan")
+        self.man_2 = Manufacturer.objects.create(name="Ford",
+                                                 country="USA")
+
+    def test_search_by_name_is_case_insensitive(self):
+        response = self.client.get(self.url, {"name": "tOyOtA"})
+        self.assertEqual(response.status_code, 200)
+        manufacturer_list = list(response.context["manufacturer_list"])
+        self.assertIn(self.man_1, manufacturer_list)
+        self.assertNotIn(self.man_2, manufacturer_list)
+
+    def test_empty_manufacturer_search_returns_all(self):
+        response = self.client.get(self.url, {"name": ""})
+        self.assertEqual(response.status_code, 200)
+        manufacturer_list = list(response.context["manufacturer_list"])
+        self.assertIn(self.man_1, manufacturer_list)
+        self.assertIn(self.man_2, manufacturer_list)

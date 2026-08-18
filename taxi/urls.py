@@ -52,10 +52,12 @@ urlpatterns = [
         name="toggle-car-assign",
     ),
     path("drivers/", DriverListView.as_view(), name="driver-list"),
-    path("drivers/<int:pk>/", DriverDetailView.as_view(), name="driver-detail"),  # noqa: E501
-    path("drivers/", DriverListView.as_view(), name="driver-list"),
-    path("drivers/<int:pk>/", DriverDetailView.as_view(), name="driver-detail"),  # noqa: E501
-    path("drivers/create/", DriverCreateView.as_view(), name="driver-create"),  # noqa: E501
+    path(
+        "drivers/<int:pk>/", DriverDetailView.as_view(), name="driver-detail"
+    ),  # noqa: E501
+    path(
+        "drivers/create/", DriverCreateView.as_view(), name="driver-create"
+    ),  # noqa: E501
     path(
         "drivers/<int:pk>/update/",
         DriverLicenseUpdateView.as_view(),

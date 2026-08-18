@@ -18,8 +18,8 @@ class ModelTests(TestCase):
             username="test", first_name="test_first", last_name="test_last"
         )
         self.assertEqual(
-            str(driver), f"{driver.username} ({driver.first_name} "
-                         f"{driver.last_name})"
+            str(driver),
+            f"{driver.username} ({driver.first_name} " f"{driver.last_name})",
         )
 
     def test_car_str(self):
